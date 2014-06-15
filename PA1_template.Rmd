@@ -71,7 +71,7 @@ The 5-minute interval, on average across all the days in the dataset, that conta
 
 ## Imputing missing values
 * Report the count of NAs in the dataset.
-* Create an identcal dataset that replaces NA values with that interval's average for the dataset
+* Create an identical dataset that replaces NA values -- replace the NAs with that interval's average from the entire dataset
 * Create a histogram like the one from earlier in the analysis, this time illustrating the data with the NAs replaced
 * Report whether the substitution approach had an impact on the mean and median values.
 
@@ -84,8 +84,8 @@ naCount <- sum(naOccurence)
 #copy the dataset for preservation
 activityDataNaFix <- activityData
 
-#adjust the steps column to contain the actual step counts and the NAs
-#replaced with interval averages
+#adjust the steps column to contain the actual step counts where original
+#contained values and replace the NAs with interval averages obtained earlier
 activityDataNaFix <- join(activityDataNaFix, avgByTimeInterval, by="interval")
 activityDataNaFix[is.na(activityDataNaFix$steps),"steps"] <- activityDataNaFix[is.na(activityDataNaFix$steps),"intervalAvg"]
 activityDataNaFix <- activityDataNaFix[,1:3]

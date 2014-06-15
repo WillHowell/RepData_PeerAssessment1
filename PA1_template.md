@@ -18,7 +18,8 @@ The dataset is stored in a comma-separated-value (CSV) file and there are a tota
 * Unzip the data if it is present in the working directory, 
 * read it in, 
 * and handle the date column and NAs. 
-```{r}
+
+```r
     zipFileName <- "activity.zip"
     if (file.exists(zipFileName)){
         files <- unzip(zipFileName, overwrite = TRUE)
@@ -36,26 +37,31 @@ The dataset is stored in a comma-separated-value (CSV) file and there are a tota
 * Create a histogram of the total number of steps taken each day.
 * Get one value for the mean of steps in a day across the entire dataset
 * Do the same for the median value
-```{r histStepsPerDay}
+
+```r
 library(ggplot2)
 library(plyr)
 totalStepsPerDay <- ddply(activityDataNoNas,.(date), summarize, daySteps=sum(steps))
 
 dayStepHist <- ggplot(totalStepsPerDay, aes(x=date, weight=daySteps))
 dayStepHist + geom_histogram(binwidth=1)
-
-stepsMean <- mean(totalStepsPerDay$daySteps)
-stepsMedian <- median(totalStepsPerDay$daySteps)
-
 ```
 
-The mean of the steps in a day across the two months of the dataset is **`r stepsMean`** and the median is **`r stepsMedian`**.
+![plot of chunk histStepsPerDay](figure/histStepsPerDay.png) 
+
+```r
+stepsMean <- mean(totalStepsPerDay$daySteps)
+stepsMedian <- median(totalStepsPerDay$daySteps)
+```
+
+The mean of the steps in a day across the two months of the dataset is **1.0766 &times; 10<sup>4</sup>** and the median is **10765**.
 
 
 ## What is the average daily activity pattern?
 * Make a time series plot, showing step count by time of day using the values avaeraged across the two months
 * Report the time interval that, on average, has the highest step count
-```{r dailyActivity}
+
+```r
 avgByTimeInterval <- ddply(activityDataNoNas, .(interval), summarize, intervalAvg=mean(steps))
 
 
@@ -63,11 +69,15 @@ ggplot(avgByTimeInterval, aes(x=interval, y=intervalAvg)) +
     geom_line() +
     labs(x = "Time of Day", y="Step Count") +
     ggtitle("Time Series of Step count, Averaged Across Entire Dataset") 
+```
 
+![plot of chunk dailyActivity](figure/dailyActivity.png) 
+
+```r
     sortedAvgStepsByTimeInterval <- arrange(avgByTimeInterval, desc(intervalAvg))
     maxOfAverageIntervals <- sortedAvgStepsByTimeInterval[1,"interval"]
 ```
-The 5-minute interval, on average across all the days in the dataset, that contains the maximum number of steps is **`r maxOfAverageIntervals`**.
+The 5-minute interval, on average across all the days in the dataset, that contains the maximum number of steps is **835**.
 
 ## Imputing missing values
 * Report the count of NAs in the dataset.
@@ -75,8 +85,8 @@ The 5-minute interval, on average across all the days in the dataset, that conta
 * Create a histogram like the one from earlier in the analysis, this time illustrating the data with the NAs replaced
 * Report whether the substitution approach had an impact on the mean and median values.
 
-```{r missingValues}
 
+```r
 #count the NAs
 naOccurence <- is.na(activityData$steps)
 naCount <- sum(naOccurence)
@@ -94,26 +104,30 @@ activityDataNaFix <- activityDataNaFix[,1:3]
 totalStepsPerDayNaFix <- ddply(activityDataNaFix,.(date), summarize, daySteps=sum(steps))
 dayStepHist <- ggplot(totalStepsPerDayNaFix, aes(x=date, weight=daySteps))
 dayStepHist + geom_histogram(binwidth=1)
+```
 
+![plot of chunk missingValues](figure/missingValues.png) 
+
+```r
 stepsMeanNaFix <- mean(totalStepsPerDayNaFix$daySteps)
 stepsMedianNaFix <- median(totalStepsPerDayNaFix$daySteps)
 ```
 
-The number of NAs in the input dataset is **`r naCount`**.
+The number of NAs in the input dataset is **2304**.
 
 The values calculated earlier where the NAs were ommitted are:  
-mean:   **`r stepsMean`**   
-median: **`r stepsMedian`**  
+mean:   **1.0766 &times; 10<sup>4</sup>**   
+median: **10765**  
 
 Substituting in the the interval average for NAs results in:  
-mean:   **`r stepsMeanNaFix`**   
-median: **`r stepsMedianNaFix`**  
+mean:   **1.0766 &times; 10<sup>4</sup>**   
+median: **1.0766 &times; 10<sup>4</sup>**  
 
 The substitution approach did not have a significant impact.
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r compareWeekdayVsWeekend}
 
+```r
 activityDataNaFix[weekdays(activityDataNaFix$date) %in% c("Saturday","Sunday"),"dayType"] <- "Weekend"
 
 activityDataNaFix[!(weekdays(activityDataNaFix$date) %in% c("Saturday","Sunday")),"dayType"] <- "Weekday"
@@ -123,6 +137,6 @@ totalStepsPerDay <- ddply(activityDataNaFix,.(dayType, interval), summarize, int
 
 qplot(interval, intervalAvg, data=totalStepsPerDay, facets=dayType~., geom="line",
       ylab="Step Count", xlab="Time of Day", main = "Weekday vs Weekend")
-
-
 ```
+
+![plot of chunk compareWeekdayVsWeekend](figure/compareWeekdayVsWeekend.png) 
